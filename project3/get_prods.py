@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import csv
+import re
 import requests
 import sys
 import time
@@ -35,21 +36,29 @@ for url in file:
     prod_price = soup.find('span', {'id': "netz-price"}).text.strip()
     # read specifications table
     spec_row = soup.find_all('tr', {'class': "product--properties-row"})
+    row_num = 0
     for row in spec_row:
+        row_num += 1
         vals = row.find_all('td')
         if vals:
             match vals[0].text:
                 case "Frame material:":
-                    frame_material = vals[1].text
+                    frame_material = vals[1].text.strip()
                 case "Wheel size:":
-                    wheel_size = vals[1].text
+                    wheel_size = vals[1].text.strip()
                 case "Colour:":
-                    colour = vals[1].text
+                    colour = vals[1].text.strip()
                 case "Weight:":
-                    weight = vals[1].text
+                    weight = vals[1].text.strip()
                 case _:
                     pass
     # write results to tsv
-    writer.writerow([url, prod_name, prod_price, frame_material, wheel_size, colour, weight])
+    writer.writerow([url, re.sub('\s+',' ',prod_name), re.sub('\s+',' ', prod_price), 
+                    re.sub('\s+',' ', frame_material), re.sub('\s+',' ', wheel_size), 
+                    re.sub('\s+',' ', colour), re.sub('\s+',' ', weight)])
     # wait before next request
     time.sleep(1)
+    # Avoid overwhelming the website with requests
+    if (row_num == 30):
+        row_num = 0
+        time.sleep(30)
