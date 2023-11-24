@@ -52,4 +52,4 @@ for url in file:
     # write results to tsv
     writer.writerow([url, prod_name, prod_price, frame_material, wheel_size, colour, weight])
     # wait before next request
-    time.sleep(3)
+    time.sleep(1)
